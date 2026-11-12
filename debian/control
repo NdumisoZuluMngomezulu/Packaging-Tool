@@ -1,0 +1,46 @@
+Source: mytool
+Section: utils
+Priority: optional
+Maintainer: Your Name <you@example.com>
+Build-Depends: cmake (>= 3.16),
+               debhelper-compat (= 13),
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/youruser/mytool
+Vcs-Browser: https://github.com/youruser/mytool
+Vcs-Git: https://github.com/youruser/mytool.git
+
+Package: libmytool1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Description: file checksum and entropy analysis library
+ libmytool computes the size, CRC-32, SHA-256 digest and Shannon entropy
+ of files in a single pass, behind a small, stable C ABI.
+ .
+ This package contains the shared library.
+
+Package: libmytool-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libmytool1 (= ${binary:Version}), ${misc:Depends}
+Description: file checksum and entropy analysis library - development files
+ libmytool computes the size, CRC-32, SHA-256 digest and Shannon entropy
+ of files in a single pass, behind a small, stable C ABI.
+ .
+ This package contains the C header, the unversioned libmytool.so symlink,
+ pkg-config metadata and CMake package configuration files.
+
+Package: mytool
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: command-line file checksum and entropy analyzer
+ mytool prints size, CRC-32, SHA-256 and Shannon entropy for files, emits
+ sha256sum-compatible output, and verifies files against a manifest.
+ .
+ A systemd timer (mytool-verify.timer) checks the manifest in
+ /etc/mytool/manifest.sha256 once a day.
