@@ -1,0 +1,11 @@
+build/
+obj-*/
+debian/.debhelper/
+debian/*.debhelper*
+debian/*.substvars
+debian/files
+debian/tmp/
+debian/libmytool1/
+debian/libmytool-dev/
+debian/mytool/
+debian/debhelper-build-stamp

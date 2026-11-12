@@ -1,0 +1,4 @@
+usr/include/mytool
+usr/lib/*/libmytool.so
+usr/lib/*/cmake
+usr/lib/*/pkgconfig

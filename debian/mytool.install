@@ -1,0 +1,3 @@
+usr/bin/mytool
+usr/share/man/man1/mytool.1
+etc/manifest.sha256 etc/mytool/

@@ -1,0 +1,27 @@
+#!/bin/sh
+# Proves libmytool-dev is sufficient for a downstream project to build and run
+# against the installed library through BOTH CMake and pkg-config.
+set -eu
+cd "$AUTOPKGTEST_TMP"
+cat > t.cpp <<'CPP'
+#include <mytool/mytool.h>
+#include <cstdio>
+#include <cstring>
+int main() {
+    char h[65];
+    mytool_sha256_buf("abc", 3, h);
+    std::puts(h);
+    return std::strncmp(h, "ba7816bf", 8) != 0;
+}
+CPP
+cat > CMakeLists.txt <<'CM'
+cmake_minimum_required(VERSION 3.16)
+project(consumer CXX)
+find_package(mytool 1 REQUIRED)
+add_executable(t t.cpp)
+target_link_libraries(t PRIVATE mytool::mytool)
+CM
+cmake -S . -B build >/dev/null && cmake --build build >/dev/null && ./build/t
+
+g++ t.cpp $(pkg-config --cflags --libs mytool) -o t2 && ./t2
+echo "dev-package OK"

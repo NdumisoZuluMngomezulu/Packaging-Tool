@@ -1,0 +1,4 @@
+# The library calls no libc functions that have _FORTIFY_SOURCE variants
+# (the only memcpy sizes are compile-time constants and get inlined), so the
+# check has nothing to find even though -D_FORTIFY_SOURCE=2 IS being applied.
+libmytool1: hardening-no-fortify-functions [usr/lib/*/libmytool.so.1.0.0]

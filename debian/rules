@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+
+# Enable every dpkg-buildflags hardening feature:
+# pie, bindnow, relro, fortify, stackprotectorstrong, format, ...
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# ABI guard: fail the build if debian/libmytool1.symbols and the freshly built
+# library disagree in ANY direction (symbol removed OR new symbol not listed).
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release
+
+# One --name covers mytool.mytool-verify.service *and* .timer; the timer is
+# the unit that gets enabled (the oneshot service has no [Install] section).
+override_dh_installsystemd:
+	dh_installsystemd --name=mytool-verify

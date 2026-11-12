@@ -1,0 +1,19 @@
+[Unit]
+Description=Verify files against the mytool checksum manifest
+Documentation=man:mytool(1)
+ConditionPathExists=/etc/mytool/manifest.sha256
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mytool verify /etc/mytool/manifest.sha256
+# Read-only integrity check: lock it down.
+DynamicUser=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateDevices=yes
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX
+MemoryDenyWriteExecute=yes
+SystemCallFilter=@system-service

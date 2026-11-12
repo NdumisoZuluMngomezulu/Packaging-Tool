@@ -1,0 +1,7 @@
+Tests: cli-smoke
+Depends: mytool
+Restrictions: allow-stderr
+
+Tests: dev-package
+Depends: libmytool-dev, mytool, build-essential, cmake, pkgconf
+Restrictions: allow-stderr

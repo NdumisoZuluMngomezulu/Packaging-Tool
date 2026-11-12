@@ -1,0 +1,25 @@
+#!/bin/sh
+# Exercises the INSTALLED mytool package (not the build tree).
+set -eu
+cd "$AUTOPKGTEST_TMP"
+
+mytool --version | grep -q '^mytool 1\.'
+printf 'hello\n' > a.txt
+
+# Must agree with the reference implementation.
+[ "$(mytool sum a.txt)" = "$(sha256sum a.txt)" ]
+
+# Manifest round-trip: passes, then fails after tampering.
+mytool sum a.txt > m.sha256
+mytool verify m.sha256
+echo tampered >> a.txt
+if mytool verify m.sha256; then echo "tampering not detected" >&2; exit 1; fi
+
+mytool --json analyze a.txt | grep -q '"sha256"'
+
+# Packaging assets are present.
+man -w mytool >/dev/null 2>&1 || test -f /usr/share/man/man1/mytool.1.gz
+test -f /etc/mytool/manifest.sha256
+test -f /usr/lib/systemd/system/mytool-verify.service || test -f /lib/systemd/system/mytool-verify.service
+test -f /usr/lib/systemd/system/mytool-verify.timer   || test -f /lib/systemd/system/mytool-verify.timer
+echo "cli-smoke OK"

@@ -1,0 +1,7 @@
+libmytool.so.1 libmytool1 #MINVER#
+* Build-Depends-Package: libmytool-dev
+ mytool_analyze_file@Base 1.0.0
+ mytool_sha256_buf@Base 1.0.0
+ mytool_strerror@Base 1.0.0
+ mytool_verify_file@Base 1.0.0
+ mytool_version@Base 1.0.0

@@ -1,0 +1,70 @@
+name: Debian package
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*', 'debian/*']
+  pull_request:
+
+jobs:
+  build-lint-test:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install packaging toolchain
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git ca-certificates git-buildpackage devscripts debhelper \
+            build-essential cmake pkgconf fakeroot lintian autopkgtest \
+            man-db systemd
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # gbp wants real history
+
+      - name: Trust workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install build-dependencies
+        run: apt-get build-dep -y .   # reads Build-Depends from debian/control
+        # (falls back to: mk-build-deps -ir -t "apt-get -y" debian/control)
+
+      - name: Build source + binary packages (git-buildpackage)
+        run: |
+          # actions/checkout leaves a detached HEAD, hence --git-ignore-branch.
+          # -sa: include source. Binary-only symbols guard is enforced inside
+          # debian/rules (DPKG_GENSYMBOLS_CHECK_LEVEL=4).
+          gbp buildpackage \
+            --git-ignore-branch \
+            --git-export-dir="$RUNNER_TEMP/build-area" \
+            --git-builder="dpkg-buildpackage -us -uc -sa"
+          ls -l "$RUNNER_TEMP/build-area"
+
+      - name: Lintian (pedantic, zero tags allowed)
+        run: |
+          # Fail on ANY tag: errors, warnings, info and pedantic.
+          lintian --pedantic --display-info --info \
+                  --fail-on error,warning,info,pedantic \
+                  "$RUNNER_TEMP"/build-area/*.changes
+
+      - name: autopkgtest (installed-package smoke tests)
+        run: |
+          cd "$RUNNER_TEMP/build-area"
+          # 'null' runs tests directly in this (disposable) container,
+          # installing the freshly built .debs first.
+          autopkgtest ./*.deb "$GITHUB_WORKSPACE" -- null
+
+      - name: Upload packages
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debs
+          path: |
+            ${{ runner.temp }}/build-area/*.deb
+            ${{ runner.temp }}/build-area/*.ddeb
+            ${{ runner.temp }}/build-area/*.changes
+            ${{ runner.temp }}/build-area/*.dsc
