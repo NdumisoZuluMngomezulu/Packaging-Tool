@@ -1,0 +1,86 @@
+.TH MYTOOL 1 "November 2026" "mytool 1.0.0" "User Commands"
+.SH NAME
+mytool \- file checksum and entropy analyzer
+.SH SYNOPSIS
+.B mytool
+[\fB\-\-json\fR]
+.B analyze
+.IR FILE ...
+.br
+.B mytool sum
+.IR FILE ...
+.br
+.B mytool verify
+.I MANIFEST
+.br
+.B mytool
+.RB { \-\-version | \-\-help }
+.SH DESCRIPTION
+.B mytool
+computes the size, CRC-32, SHA-256 digest and Shannon entropy of files in a
+single pass, and can verify files against a manifest.
+It is a thin frontend to
+.BR libmytool .
+.SH COMMANDS
+.TP
+.B analyze \fIFILE\fR...
+Print size, CRC-32, entropy (bits per byte; values near 8 suggest compressed
+or encrypted data) and SHA-256 for each file.
+.TP
+.B sum \fIFILE\fR...
+Print "\fIhash\fR  \fIpath\fR" lines compatible with
+.BR sha256sum (1).
+.TP
+.B verify \fIMANIFEST\fR
+Check every file listed in
+.I MANIFEST
+(in
+.BR sha256sum (1)
+format; blank lines and lines starting with
+.B #
+are ignored).
+.SH OPTIONS
+.TP
+.B \-\-json
+Emit
+.B analyze
+output as a JSON array.
+.TP
+.B \-\-version
+Print the version and exit.
+.TP
+.B \-\-help
+Print usage and exit.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+One or more files failed verification.
+.TP
+.B 2
+A file or manifest could not be read.
+.TP
+.B 64
+Usage error.
+.SH FILES
+.TP
+.I /etc/mytool/manifest.sha256
+Manifest checked by the
+.B mytool-verify.service
+systemd unit.
+.SH EXAMPLES
+Create a manifest and verify it later:
+.PP
+.RS
+.nf
+$ mytool sum /usr/bin/ls /usr/bin/cat > manifest.sha256
+$ mytool verify manifest.sha256
+.fi
+.RE
+.SH SEE ALSO
+.BR sha256sum (1),
+.BR systemd.timer (5)
+.SH AUTHOR
+Your Name <you@example.com>
