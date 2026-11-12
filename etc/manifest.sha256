@@ -1,0 +1,3 @@
+# mytool manifest: one "<sha256>  <absolute path>" per line (sha256sum format).
+# Generate entries with:  mytool sum /path/to/file >> /etc/mytool/manifest.sha256
+# Checked daily by mytool-verify.timer.
